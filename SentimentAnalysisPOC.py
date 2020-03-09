@@ -2,6 +2,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import MultinomialNB
 import pandas
 import numpy as np
 import random
@@ -82,7 +84,9 @@ def sentiment_analysis():
         polarities,
         train_size=0.90)
 
+
     # initialize model
+
     log_model = LogisticRegression()
     # train model
     log_model = log_model.fit(X=X_train, y=y_train)
@@ -101,5 +105,8 @@ def sentiment_analysis():
         print(data[ind].strip())
     '''
     print(accuracy_score(y_test, y_pred))
+
+
+
 
 sentiment_analysis()
