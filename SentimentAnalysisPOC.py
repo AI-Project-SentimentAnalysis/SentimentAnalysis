@@ -6,6 +6,8 @@ import pandas
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from SentimentAnalysis.useful_components import TwitterDataSet
+
 
 '''
 This function returns a dataframe object with the full data set in it. 
@@ -50,14 +52,15 @@ The data is a CSV with emoticons removed. Data file format has 6 fields:
 
 
 def sentiment_analysis():
+    data_set = TwitterDataSet()
     # Load the DataSet
-    data_frame = pandas.DataFrame(build_full_data_set())
+    data_frame = data_set.data_frame
     # only need polarity and tweet text, so drop other columns
 
     # Drop columns from the DataFrame that are not needed, we only need the
     # tweet text and the polarities
     pruned_data = data_frame.drop(columns=["unique_id", "date", "query", "user_handle"])
-    tweets = pruned_data["tweet_text"]
+    tweets = data_frame['tweet_text']
     polarities = pandas.Series(data_frame["polarity"])
 
     # print(pruned_data)
