@@ -1,14 +1,9 @@
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import pandas as pd
-from sklearn.naive_bayes import MultinomialNB
-
-from SentimentAnalysis.useful_components import TwitterDataSet
-
-from sklearn import svm
-
+from useful_components import TwitterDataSet
+from sklearn.svm import LinearSVC
 
 
 def support_vec_classifier():
@@ -23,23 +18,29 @@ def support_vec_classifier():
         analyzer='word',
         lowercase=False,
     )
-    features = vectorizer.fit_transform(
+    feature_count = vectorizer.fit_transform(
         tweets
     )
     print(polarities.shape)
-    print(features.shape)
+    print(feature_count.shape)
+
+    # find term frequencies
+    feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
+    print(feature_count_tfidf.shape)
+    print(polarities.shape)
 
     # split data set for training and testing
     X_train, X_test, y_train, y_test = train_test_split(
-        features,
+        feature_count_tfidf,
         polarities,
         train_size=0.95)
 
-    classifier = svm.SVC()
+    classifier = LinearSVC(max_iter=1000, C=.5, loss='hinge', intercept_scaling=10)
     model = classifier.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
+    return model
 
 
 support_vec_classifier()
