@@ -1,10 +1,11 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn import tree
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics import accuracy_score
 import pandas as pd
-from SentimentAnalysis.useful_components import TwitterDataSet
-
+from math import sqrt
+from useful_components import TwitterDataSet
 
 
 def decision_tree_classifier():
@@ -19,22 +20,32 @@ def decision_tree_classifier():
         analyzer='word',
         lowercase=False,
     )
-    features = vectorizer.fit_transform(
+    feature_count = vectorizer.fit_transform(
         tweets
     )
+    n_features = vectorizer.vocabulary_.__len__()
+    print(n_features)
+
+
+    # find term frequencies
+    feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
+    print(feature_count_tfidf.shape)
     print(polarities.shape)
-    print(features.shape)
+
+
+
 
     # split data set for training and testing
     X_train, X_test, y_train, y_test = train_test_split(
-        features,
+        feature_count_tfidf,
         polarities,
-        train_size=0.95)
+        train_size=0.90)
 
-
-    classifier = tree.DecisionTreeClassifier()
-    model = classifier.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    max_feat = int(sqrt(n_features))
+    classifier = tree.DecisionTreeClassifier(max_features=max_feat,
+                                             max_depth=100, random_state=0)
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
 
