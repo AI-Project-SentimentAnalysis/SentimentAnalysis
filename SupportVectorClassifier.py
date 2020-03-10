@@ -4,6 +4,7 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 from useful_components import TwitterDataSet
 from sklearn.svm import LinearSVC
+from sklearn import svm
 
 
 def support_vec_classifier():
@@ -35,7 +36,8 @@ def support_vec_classifier():
         polarities,
         train_size=0.95)
 
-    classifier = LinearSVC(max_iter=1000, C=.5, loss='hinge', intercept_scaling=10)
+    #classifier = LinearSVC(max_iter=1000, C=.5, loss='hinge', intercept_scaling=10)
+    classifier = svm.SVC(C=.5) 
     model = classifier.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 

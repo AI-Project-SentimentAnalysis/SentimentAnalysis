@@ -2,13 +2,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
+
 import pandas
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-from SentimentAnalysis.useful_components import TwitterDataSet
+from useful_components import TwitterDataSet
 
 
 '''
@@ -54,6 +52,7 @@ The data is a CSV with emoticons removed. Data file format has 6 fields:
 
 
 def sentiment_analysis():
+    '''
     data_set = TwitterDataSet()
     # Load the DataSet
     data_frame = data_set.data_frame
@@ -84,7 +83,12 @@ def sentiment_analysis():
         polarities,
         train_size=0.90)
 
-
+    '''
+    data_set = TwitterDataSet()
+    X_train = data_set.X_train
+    X_test = data_set.X_test
+    y_test = data_set.y_test
+    y_train = data_set.y_train
     # initialize model
 
     log_model = LogisticRegression()
@@ -94,7 +98,6 @@ def sentiment_analysis():
     y_pred = log_model.predict(X_test)
 
     # check accuracy by eyeballing it
-    data = tweets.tolist()
 
     '''
     X_test = X_test.toarray()

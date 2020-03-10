@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.model_selection import train_test_split
 
 '''
 The data is a CSV with emoticons removed. Data file format has 6 fields:
@@ -18,8 +20,12 @@ The format of each line in the csv files is as follows:
 
 class TwitterDataSet:
     data_frame = pd.DataFrame()
-    def __init__(self):
+
+    def __init__(self, TfIdfTransform_Bool=False, train_proportion=.90):
         self.data_frame = build_full_data_set()
+        self.X_train, self.X_test, self.y_train, self.y_test = vectorize_words(data_frame=self.data_frame,
+                                                                               tf_bool=TfIdfTransform_Bool,
+                                                                               train_proportion=train_proportion)
 
     def get_dataframe_format_of_data_set(self):
         return self.data_frame
@@ -31,6 +37,37 @@ class TwitterDataSet:
             key = df['tweet_text'][ind]
             value = df['polarity'][ind]
             tweet_to_polarity_map[key] = value
+
+
+def vectorize_words(data_frame, tf_bool=False, train_proportion=.95):
+    tweets = pd.Series(data_frame['tweet_text'])
+    polarities = pd.Series(data_frame["polarity"])
+    # extract features
+    vectorizer = CountVectorizer(
+        analyzer='word',
+        lowercase=False,
+    )
+    feature_count = vectorizer.fit_transform(
+        tweets
+    )
+
+    # find term frequencies
+    if tf_bool:
+        feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
+        print(feature_count_tfidf.shape)
+        print(polarities.shape)
+        X_train, X_test, y_train, y_test = train_test_split(
+            feature_count_tfidf,
+            polarities,
+            train_size=train_proportion)
+    else:
+        # split data set for training and testing
+        X_train, X_test, y_train, y_test = train_test_split(
+            feature_count,
+            polarities,
+            train_size=train_proportion)
+
+    return X_train, X_test, y_train, y_test
 
 
 def build_full_data_set():

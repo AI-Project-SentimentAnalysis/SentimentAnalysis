@@ -4,9 +4,10 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 from useful_components import TwitterDataSet
 from sklearn import linear_model
+from joblib import dump, load
 
 
-def support_vec_classifier():
+def support_vec_classifier_with_stochastic_gradient_descent():
     data_set = TwitterDataSet()
     # Load the DataSet
     data_frame = data_set.data_frame
@@ -37,10 +38,15 @@ def support_vec_classifier():
 
     classifier = linear_model.SGDClassifier(loss='hinge', # hinge is what makes it default to Support Vector Machine
                                             max_iter=1000, tol=1e-3)
-    model = classifier.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
 
+    dump(classifier, 'support_vec_cfr_with_sgd.joblib')
+    return classifier
 
-support_vec_classifier()
+
+
+
+support_vec_classifier_with_stochastic_gradient_descent()
