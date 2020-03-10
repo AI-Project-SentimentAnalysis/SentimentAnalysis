@@ -8,47 +8,22 @@ from sklearn.naive_bayes import MultinomialNB
 from useful_components import TwitterDataSet
 
 
-
 def Bayesian_Sentiment_Analysis():
     data_set = TwitterDataSet()
     # Load the DataSet
-    data_frame = data_set.data_frame
 
-    tweets = pd.Series(data_frame['tweet_text'])
-    polarities = pd.Series(data_frame["polarity"])
-    # extract features
-    vectorizer = CountVectorizer(
-        analyzer='word',
-        lowercase=False,
-    )
-    feature_count = vectorizer.fit_transform(
-        tweets
-    )
-    print(polarities.shape)
-    print(feature_count.shape)
+    # split data set for training and testing
+    X_train, X_test, y_train, y_test = data_set.get_test_train_split()
 
-    # find term frequencies
-    feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
-    print(feature_count_tfidf.shape)
-    print(polarities.shape)
-
-    #split data set for training and testing
-    X_train, X_test, y_train, y_test = train_test_split(
-        feature_count_tfidf,
-        polarities,
-        train_size=0.95)
-
-    clf = MultinomialNB()
-    model = clf.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    MultinomialNaiveBayesianClassifier = MultinomialNB()
+    #train model
+    MultinomialNaiveBayesianClassifier.fit(X_train, y_train)
+    #predict values of Xtest
+    y_pred = MultinomialNaiveBayesianClassifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
 
-    return model
-
-
+    return MultinomialNaiveBayesianClassifier
 
 
 Bayesian_Sentiment_Analysis()
-
-

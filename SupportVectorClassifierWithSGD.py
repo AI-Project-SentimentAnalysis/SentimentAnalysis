@@ -8,33 +8,10 @@ from joblib import dump, load
 
 
 def support_vec_classifier_with_stochastic_gradient_descent():
-    data_set = TwitterDataSet()
-    # Load the DataSet
-    data_frame = data_set.data_frame
-
-    tweets = pd.Series(data_frame['tweet_text'])
-    polarities = pd.Series(data_frame["polarity"])
-    # extract features
-    vectorizer = CountVectorizer(
-        analyzer='word',
-        lowercase=False,
-    )
-    feature_count = vectorizer.fit_transform(
-        tweets
-    )
-    print(polarities.shape)
-    print(feature_count.shape)
-
-    # find term frequencies
-    feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
-    print(feature_count_tfidf.shape)
-    print(polarities.shape)
+    data_set = TwitterDataSet(TfIdfTransform_Bool=True)
 
     # split data set for training and testing
-    X_train, X_test, y_train, y_test = train_test_split(
-        feature_count_tfidf,
-        polarities,
-        train_size=0.95)
+    X_train, X_test, y_train, y_test = data_set.get_test_train_split()
 
     classifier = linear_model.SGDClassifier(loss='hinge', # hinge is what makes it default to Support Vector Machine
                                             max_iter=1000, tol=1e-3)

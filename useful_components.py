@@ -23,12 +23,21 @@ class TwitterDataSet:
 
     def __init__(self, TfIdfTransform_Bool=False, train_proportion=.90):
         self.data_frame = build_full_data_set()
-        self.X_train, self.X_test, self.y_train, self.y_test = vectorize_words(data_frame=self.data_frame,
+
+        self.vectorizer = CountVectorizer(#max_df=.9,
+                                          analyzer='word',
+                                          lowercase=False,
+                                          )
+        self.tfidfTransformer = TfidfTransformer(use_idf=False)
+        self.X_train, self.X_test, self.y_train, self.y_test = vectorize_words(dataSetObj=self,
                                                                                tf_bool=TfIdfTransform_Bool,
                                                                                train_proportion=train_proportion)
 
     def get_dataframe_format_of_data_set(self):
         return self.data_frame
+
+    def get_test_train_split(self):
+        return self.X_train, self.X_test, self.y_train, self.y_test
 
     def map_text_to_polarity(self):
         tweet_to_polarity_map = dict()
@@ -39,23 +48,19 @@ class TwitterDataSet:
             tweet_to_polarity_map[key] = value
 
 
-def vectorize_words(data_frame, tf_bool=False, train_proportion=.95):
+def vectorize_words(dataSetObj, tf_bool=False, train_proportion=.95):
+    data_frame = dataSetObj.data_frame
     tweets = pd.Series(data_frame['tweet_text'])
     polarities = pd.Series(data_frame["polarity"])
     # extract features
-    vectorizer = CountVectorizer(
-        analyzer='word',
-        lowercase=False,
-    )
+    vectorizer = dataSetObj.vectorizer
+
     feature_count = vectorizer.fit_transform(
         tweets
     )
-
     # find term frequencies
     if tf_bool:
-        feature_count_tfidf = TfidfTransformer(use_idf=False).fit_transform(feature_count)
-        print(feature_count_tfidf.shape)
-        print(polarities.shape)
+        feature_count_tfidf = dataSetObj.tfidfTransformer.fit_transform(feature_count)
         X_train, X_test, y_train, y_test = train_test_split(
             feature_count_tfidf,
             polarities,
