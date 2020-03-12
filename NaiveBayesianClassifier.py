@@ -53,7 +53,7 @@ if __name__ == '__main__':
     columns = [tweets_series.name, pred_series.name, pol_series.name]
     print(columns)
     results = pd.concat([tweets_series, pred_series, pol_series], ignore_index=True, axis=1)
-    results = pd.DataFrame(results, columns=columns)
+    results.columns = columns
 
     print(results)
     results.to_csv('bayesian_results.csv')
