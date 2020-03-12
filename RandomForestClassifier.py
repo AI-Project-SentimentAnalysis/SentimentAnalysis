@@ -1,16 +1,11 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn import tree
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics import accuracy_score
-import pandas as pd
 from math import sqrt
 from useful_components import TwitterDataSet
+from sklearn.ensemble import RandomForestClassifier
 
 
-def decision_tree_classifier():
+def random_forest_classifier():
     data_set = TwitterDataSet(TfIdfTransform_Bool=True)
-
 
     # split data set for training and testing
     X_train, X_test, y_train, y_test = data_set.get_test_train_split()
@@ -18,12 +13,10 @@ def decision_tree_classifier():
     n_features = data_set.get_num_features()
 
     max_feat = int(sqrt(n_features))
-    classifier = tree.DecisionTreeClassifier(max_features=n_features, min_samples_leaf=1,
-                                             max_depth=1000)
+    classifier = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
 
-
-decision_tree_classifier()
+random_forest_classifier()

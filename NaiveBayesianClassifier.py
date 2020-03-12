@@ -9,7 +9,7 @@ from useful_components import TwitterDataSet
 
 
 def Bayesian_Sentiment_Analysis():
-    data_set = TwitterDataSet()
+    data_set = TwitterDataSet(clean_tweets_bool=False)
     # Load the DataSet
 
     # split data set for training and testing
@@ -23,7 +23,32 @@ def Bayesian_Sentiment_Analysis():
 
     print(accuracy_score(y_test, y_pred))
 
-    return MultinomialNaiveBayesianClassifier
+    return MultinomialNaiveBayesianClassifier, data_set
 
 
-Bayesian_Sentiment_Analysis()
+
+classifier, twitter_data_obj = Bayesian_Sentiment_Analysis()
+tweet_to_polarity_map = twitter_data_obj.map_text_to_polarity()
+tweets_to_test = twitter_data_obj.test_tweets.head(10).array
+
+
+#vectorize the tweets
+vec = twitter_data_obj.vectorizer
+tweet_vecs = vec.transform(tweets_to_test).toarray()
+
+#get predictions
+preds = classifier.predict(tweet_vecs)
+
+index = 0
+print("Tweet\t\t\tModels Polarity Label\t\tActual Polarity Label")
+for i in range(0, 9):
+    tw = tweets_to_test[i]
+    p = preds[i]
+    actual = tweet_to_polarity_map[tw]
+    print(tw + "\t" + str(p) + "\t\t" + str(actual))
+
+
+
+
+
+

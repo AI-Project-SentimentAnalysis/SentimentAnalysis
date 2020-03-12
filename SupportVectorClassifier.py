@@ -13,13 +13,12 @@ def support_vec_classifier():
     # split data set for training and testing
     X_train, X_test, y_train, y_test = data_set.get_test_train_split()
 
-    classifier = LinearSVC(max_iter=2000, C=.25, loss='hinge', intercept_scaling=30)
+    classifier = LinearSVC(max_iter=10000, C=.8, loss='hinge', intercept_scaling=1)
     # classifier = svm.SVC(C=.5)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
-    return classifier
 
 
 support_vec_classifier()
