@@ -30,6 +30,7 @@ class TwitterDataSet:
         self.polarities = pd.Series(self.data_frame["polarity"])
         if clean_tweets_bool:
             df = clean_data_set(self.tweets)
+            self.data_frame = pd.DataFrame(df)
 
         if TfIdfTransform_Bool:
             self.vectorizer = TfidfVectorizer(analyzer='word',
@@ -114,18 +115,12 @@ def build_full_data_set():
         csv_file_list = f.read().splitlines()
     columns = ["polarity", "unique_id", "date", "query", "user_handle", "tweet_text"]
     segment_list = list()
-    lower = 0
-    upper = 0
     for file in csv_file_list:
         df = pd.read_csv('DataSet/' + file, names=columns)
-        size = df.size
-        upper += size
-        #set index values
-
 
         segment_list.append(df)
     # concatenate the dataframes, so we hav e one complete dataset
-    data_set = pd.concat(segment_list)
+    data_set = pd.concat(segment_list, ignore_index=True)
     return data_set
 
 
@@ -148,9 +143,6 @@ def clean_data_set(tweets_series):
         if index < 10:
             print(str(index) + " " + str(item))
         clean_tweet = tweet_cleaner(item)
-        # print(str(index) + " " + str(clean_tweet))
-        item = clean_tweet
-        # print(str(index) + " " + str(item))
         index += 1
 
     index = 0
@@ -176,3 +168,10 @@ def tweet_cleaner(text):
     # I will tokenize and join together to remove unneccessary white spaces
     words = tok.tokenize(lower_case)
     return (" ".join(words)).strip()
+
+
+
+
+
+
+
