@@ -4,8 +4,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
+from joblib import dump, load
 
-from useful_components import TwitterDataSet
+from useful_components import TwitterDataSet, TrainedModel
 
 
 def Bayesian_Sentiment_Analysis():
@@ -22,6 +23,31 @@ def Bayesian_Sentiment_Analysis():
     y_pred = MultinomialNaiveBayesianClassifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
+    print(MultinomialNaiveBayesianClassifier.score(X_test, y_test))
+
+    # which data should we save persistently?
+    '''
+    X_test(vectorized version of tweets, ready to plugin to get accuracy score,
+    test_tweets (the test tweets themselves, to be used for demonstrating the classifier
+    y_test (the correct polarities for the training set, ready to be used for calculating accuracy)
+    vectorizer (this has the word-space-representation used for the model. Can be used to turn the demo 
+                sample into the properly vectorized version expected by the classifier.
+    classifier (obvs)
+     dict-tweets-to-polarity (makes it easier to pull random sample of tweets and check their polarities)
+    Good way to do this, that won't throw off the team: class to wrap this data up neatly. 
+    '''
+    print("building dict")
+    pol_map = data_set.get_map_for_test_tweets_only()
+    print("Dict built")
+
+    trained_model = TrainedModel(MultinomialNaiveBayesianClassifier,data_set.vectorizer, data_set.test_tweets,
+                                 data_set.X_test, data_set.y_test, pol_map)
+
+    #to check size
+    dump(data_set.vectorizer, "vectorizer.joblib")
+    print("dumping")
+    dump(trained_model,"trained_NB_model.joblib", compress=9)
+    print("finished Dumping")
 
     return MultinomialNaiveBayesianClassifier, data_set
 
@@ -29,7 +55,7 @@ def Bayesian_Sentiment_Analysis():
 if __name__ == '__main__':
     classifier, twitter_data_obj = Bayesian_Sentiment_Analysis()
     tweet_to_polarity_map = twitter_data_obj.map_text_to_polarity()
-    tweets_to_test = twitter_data_obj.test_tweets.sample(10).array
+    tweets_to_test = twitter_data_obj.test_tweets.sample(20).array
 
     tweets_series = pd.Series(tweets_to_test, name="Tweet Text")
     # tweets_to_test = twitter_data_obj.test_tweets.head(10).array
@@ -49,6 +75,12 @@ if __name__ == '__main__':
         pols.append(tweet_to_polarity_map[item])
     pol_series = pd.Series(pols, name="Actual Polarity")
 
+    X_test = twitter_data_obj.X_test
+    y_test = twitter_data_obj.y_test
+    print(classifier.score(X_test, y_test))
+
+
+
     # build dataFrame
     columns = [tweets_series.name, pred_series.name, pol_series.name]
     print(columns)
@@ -58,12 +90,3 @@ if __name__ == '__main__':
     print(results)
     results.to_csv('bayesian_results.csv')
 
-'''
-print("Tweet\t\t\tModels Polarity Label\t\tActual Polarity Label")
-for i in range(0, 9):
-    tw = tweets_to_test[i]
-    p = preds[i]
-    actual = tweet_to_polarity_map[tw]
-    print(tw + "\t" + str(p) + "\t\t" + str(actual))
-
-'''
