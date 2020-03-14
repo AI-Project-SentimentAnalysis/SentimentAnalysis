@@ -27,26 +27,32 @@ def Bayesian_Sentiment_Analysis():
 
     # which data should we save persistently?
     '''
-    X_test(vectorized version of tweets, ready to plugin to get accuracy score,
-    test_tweets (the test tweets themselves, to be used for demonstrating the classifier
-    y_test (the correct polarities for the training set, ready to be used for calculating accuracy)
-    vectorizer (this has the word-space-representation used for the model. Can be used to turn the demo 
-                sample into the properly vectorized version expected by the classifier.
-    classifier (obvs)
-     dict-tweets-to-polarity (makes it easier to pull random sample of tweets and check their polarities)
+    X_test              (vectorized version of tweets, ready to plugin to get accuracy score,
+    test_tweets         (the test tweets themselves, to be used for demonstrating the classifier
+    y_test              (the correct polarities for the training set, ready to be used for calculating accuracy)
+    vectorizer          (this has the word-space-representation used for the model. Can be used to turn the demo 
+                         sample into the properly vectorized version expected by the classifier.
+    classifier          (obvs)
+    dict-tw-to-pol      (makes it easier to pull random sample of tweets and check their polarities)
+     
     Good way to do this, that won't throw off the team: class to wrap this data up neatly. 
+    
+    HOWEVER the file size was too large with everything packaged together, so we will write out vectorizor 
+    in one file, and the rest in another file
     '''
     print("building dict")
     pol_map = data_set.get_map_for_test_tweets_only()
     print("Dict built")
 
-    trained_model = TrainedModel(MultinomialNaiveBayesianClassifier,data_set.vectorizer, data_set.test_tweets,
+    trained_model = TrainedModel(MultinomialNaiveBayesianClassifier, data_set.test_tweets,
                                  data_set.X_test, data_set.y_test, pol_map)
 
-    #to check size
-    dump(data_set.vectorizer, "vectorizer.joblib")
+
+    # Now use libdump to save the model and vectorizor persistantly
     print("dumping")
-    dump(trained_model,"trained_NB_model.joblib", compress=9)
+    dump(data_set.vectorizer, "NB_persistent_model/vectorizer.joblib",compress=3)
+
+    dump(trained_model,"NB_persistent_model/trained_NB_model.joblib", compress=9)
     print("finished Dumping")
 
     return MultinomialNaiveBayesianClassifier, data_set
@@ -54,7 +60,7 @@ def Bayesian_Sentiment_Analysis():
 
 if __name__ == '__main__':
     classifier, twitter_data_obj = Bayesian_Sentiment_Analysis()
-    tweet_to_polarity_map = twitter_data_obj.map_text_to_polarity()
+    tweet_to_polarity_map = twitter_data_obj.get_map_for_test_tweets_only()
     tweets_to_test = twitter_data_obj.test_tweets.sample(20).array
 
     tweets_series = pd.Series(tweets_to_test, name="Tweet Text")

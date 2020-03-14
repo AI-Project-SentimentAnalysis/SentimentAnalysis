@@ -8,9 +8,9 @@ from os import path
 
 
 class TrainedModel:
-    def __init__(self, classifier, vectorizor, test_tweets, X_test, y_test, tweet_to_polarity_map):
+    def __init__(self, classifier, test_tweets, X_test, y_test, tweet_to_polarity_map):
         self.cfr = classifier
-        self.vec = vectorizor
+
         self.test_tweets = test_tweets
         self.X_test = X_test
         self.y_test = y_test
