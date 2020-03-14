@@ -25,7 +25,10 @@ list_of_models = [
      'SVM_SGD_persistent_model/model.joblib'),
     ('Support Vector Machine: LinearSVC version',
      'LinearSVC_persistent_model/vectorizer.joblib',
-     'LinearSVC_persistent_model/model.joblib')
+     'LinearSVC_persistent_model/model.joblib'),
+    ('Random Forest Classifier',
+     'RandomForest_persistent_model/vectorizer.joblib',
+     'RandomForest_persistent_model/model.joblib')
 ]
 
 

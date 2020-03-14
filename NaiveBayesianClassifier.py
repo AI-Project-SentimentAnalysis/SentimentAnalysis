@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
 from joblib import dump, load
 
-from useful_components import TwitterDataSet, TrainedModel
+from useful_components import TwitterDataSet, TrainedModel, save_persistant_model
 
 
 def Bayesian_Sentiment_Analysis():
@@ -40,20 +40,15 @@ def Bayesian_Sentiment_Analysis():
     HOWEVER the file size was too large with everything packaged together, so we will write out vectorizor 
     in one file, and the rest in another file
     '''
-    print("building dict")
-    pol_map = data_set.get_map_for_test_tweets_only()
-    print("Dict built")
 
-    trained_model = TrainedModel(MultinomialNaiveBayesianClassifier, data_set.test_tweets,
-                                 data_set.X_test, data_set.y_test, pol_map)
 
 
     # Now use libdump to save the model and vectorizor persistantly
-    print("dumping")
-    dump(data_set.vectorizer, "NB_persistent_model/vectorizer.joblib",compress=3)
 
-    dump(trained_model,"NB_persistent_model/trained_NB_model.joblib", compress=9)
-    print("finished Dumping")
+    vec_path = "NB_persistent_model/vectorizer.joblib"
+    model_path = "NB_persistent_model/trained_NB_model.joblib"
+    save_persistant_model(vec_path, model_path, MultinomialNaiveBayesianClassifier, data_set)
+
 
     return MultinomialNaiveBayesianClassifier, data_set
 

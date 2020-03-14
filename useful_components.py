@@ -20,7 +20,7 @@ def save_persistant_model(vec_path, model_path, classifier, twitter_obj):
 
     # Now use libdump to save the model and vectorizor persistantly
     print("dumping")
-    dump(twitter_obj.vectorizer, vec_path, compress=3)
+    dump(twitter_obj.vectorizer, vec_path, compress=9)
 
     dump(trained_model, model_path, compress=9)
     print("finished Dumping")
@@ -69,14 +69,16 @@ class TwitterDataSet:
             self.data_frame = build_full_data_set()
         self.tweets = pd.Series(self.data_frame['tweet_text'])
         self.polarities = pd.Series(self.data_frame["polarity"])
-        if TfIdfTransform_Bool:
+        if TfIdfTransform_Bool or not TfIdfTransform_Bool:
             self.vectorizer = TfidfVectorizer(analyzer='word',
-                                              lowercase=False)
-        else:
-            self.vectorizer = CountVectorizer(  # max_df=.9,
-                analyzer='word',
-                lowercase=False,
-            )
+                                              lowercase=False,
+                                              ngram_range=(1, 2))
+        #else:
+        #    self.vectorizer = CountVectorizer(  # max_df=.9,
+        #        analyzer='word',
+        #        lowercase=False,
+        #        ngram_range=(1, 2)
+        #    )
         self.tfidfTransformer = TfidfTransformer(use_idf=False)
         self.train_tweets = None
         self.test_tweets = None
