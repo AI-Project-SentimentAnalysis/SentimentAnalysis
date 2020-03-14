@@ -49,12 +49,16 @@ def Bayesian_Sentiment_Analysis():
     model_path = "NB_persistent_model/trained_NB_model.joblib"
     save_persistant_model(vec_path, model_path, MultinomialNaiveBayesianClassifier, data_set)
 
-
+    
     return MultinomialNaiveBayesianClassifier, data_set
 
 
 if __name__ == '__main__':
     classifier, twitter_data_obj = Bayesian_Sentiment_Analysis()
+
+    #save pers parts for final twitter obj
+    #twitter_data_obj.save_pers_obj_parts()
+
     tweet_to_polarity_map = twitter_data_obj.get_map_for_test_tweets_only()
     tweets_to_test = twitter_data_obj.test_tweets.sample(20).array
 

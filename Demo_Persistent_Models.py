@@ -58,7 +58,7 @@ def run_pers_model(classifier_name, path_to_vec, path_to_model_obj):
     test_tweets = model.test_tweets
     X_test = model.X_test
     y_test = model.y_test
-    #get th emap for mapping tweet to polarity
+    #get the map for mapping tweet to polarity
     get_polarity = model.get_polarity
 
     #print out accuracy for demo

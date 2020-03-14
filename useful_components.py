@@ -69,6 +69,7 @@ class TwitterDataSet:
             self.data_frame = build_full_data_set()
         self.tweets = pd.Series(self.data_frame['tweet_text'])
         self.polarities = pd.Series(self.data_frame["polarity"])
+
         if TfIdfTransform_Bool or not TfIdfTransform_Bool:
             self.vectorizer = TfidfVectorizer(analyzer='word',
                                               lowercase=False,
@@ -118,6 +119,16 @@ class TwitterDataSet:
 
         self.get_test_tweet_polarity = get_pol
         return self.get_test_tweet_polarity
+
+    def save_pers_obj_parts(self): # dont use me
+        dump(self.vectorizer, 'persistent_vec.joblib', compress=9)
+        split_tuple = (self.X_train, self.X_test, self.y_train, self.y_test)
+        text_train_test_split = (self.train_tweets, self.test_tweets)
+        path_vec_split = 'vec_split_4_tuple.joblib'
+        path_text_2_tuple = 'text_split_2_tuple.joblib'
+        dump(split_tuple, path_vec_split, compress=9)
+        dump(text_train_test_split, path_text_2_tuple, compress=9)
+
 
 
 
