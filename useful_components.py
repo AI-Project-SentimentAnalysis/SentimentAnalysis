@@ -5,6 +5,27 @@ from sklearn.model_selection import train_test_split
 import re
 from nltk.tokenize import WordPunctTokenizer
 from os import path
+from joblib import dump, load
+
+
+
+def save_persistant_model(vec_path, model_path, classifier, twitter_obj):
+    print("building dict")
+    pol_map = twitter_obj.get_map_for_test_tweets_only()
+    print("Dict built")
+
+    trained_model = TrainedModel(classifier, twitter_obj.test_tweets,
+                                 twitter_obj.X_test, twitter_obj.y_test, pol_map)
+
+
+    # Now use libdump to save the model and vectorizor persistantly
+    print("dumping")
+    dump(twitter_obj.vectorizer, vec_path, compress=3)
+
+    dump(trained_model, model_path, compress=9)
+    print("finished Dumping")
+
+
 
 
 class TrainedModel:

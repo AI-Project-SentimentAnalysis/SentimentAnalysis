@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 import pandas
-from useful_components import TwitterDataSet
+from useful_components import TwitterDataSet, save_persistant_model
 
 
 
@@ -61,16 +61,21 @@ def sentiment_analysis():
 
     # initialize model
 
-    log_model = LogisticRegression()
+    classifier = LogisticRegression()
     # train model
-    log_model.fit(X=X_train, y=y_train)
+    classifier.fit(X=X_train, y=y_train)
     # label the evaluation set
-    y_pred = log_model.predict(X_test)
+    y_pred = classifier.predict(X_test)
 
 
     print(accuracy_score(y_test, y_pred))
 
-    return log_model
+    vec_path = 'LogRegression_persistent_model/vectorizer.joblib'
+    model_path = 'LogRegression_persistent_model/model.joblib'
+    save_persistant_model(vec_path, model_path, classifier, data_set)
+
+
+    return classifier
 
 
 
