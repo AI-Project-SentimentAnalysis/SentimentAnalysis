@@ -13,7 +13,8 @@ def neural_network():
     # split data set for training and testing
     X_train, X_test, y_train, y_test = data_set.get_test_train_split()
 
-    clf = MLPClassifier(solver='lbfgs',alpha=1e-5,hidden_layer_sizes=(10,2), random_state=1)
+    clf = MLPClassifier(solver='lbfgs',alpha=1e-5,hidden_layer_sizes=(5,5),activation='tanh', max_iter=1000, random_state=1)
+    #Note: Default iteration size of 200 will yeild an accruracy of ~80%
 
     clf.fit(X_train,y_train)
 
