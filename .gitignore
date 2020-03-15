@@ -1,8 +1,15 @@
 
 
-#massive data set
+#massive data
 StanfordDataSet
 StanfordDataSet/
+DecisionTree_persistent_model
+LinearSVC_persistent_model
+LogRegression_persistent_model
+NB_persistent_model
+RandomForest_persistent_model
+SVM_SGD_persistent_model
+
 
 
 # Byte-compiled / optimized / DLL files

@@ -1,6 +1,6 @@
 from sklearn.metrics import accuracy_score
 from math import sqrt
-from useful_components import TwitterDataSet
+from useful_components import TwitterDataSet, save_persistant_model
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -13,10 +13,14 @@ def random_forest_classifier():
     n_features = data_set.get_num_features()
 
     max_feat = int(sqrt(n_features))
-    classifier = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
+    classifier = RandomForestClassifier(max_depth=1000, random_state=0, n_estimators=100)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
 
     print(accuracy_score(y_test, y_pred))
+
+    vec_path = 'RandomForest_persistent_model/vectorizer.joblib'
+    model_path = 'RandomForest_persistent_model/model.joblib'
+    save_persistant_model(vec_path, model_path, classifier, data_set)
 
 random_forest_classifier()

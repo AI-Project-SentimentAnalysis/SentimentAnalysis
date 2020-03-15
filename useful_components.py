@@ -4,6 +4,39 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer, T
 from sklearn.model_selection import train_test_split
 import re
 from nltk.tokenize import WordPunctTokenizer
+from os import path
+from joblib import dump, load
+
+
+
+def save_persistant_model(vec_path, model_path, classifier, twitter_obj):
+    print("building dict")
+    pol_map = twitter_obj.get_map_for_test_tweets_only()
+    print("Dict built")
+
+    trained_model = TrainedModel(classifier, twitter_obj.test_tweets,
+                                 twitter_obj.X_test, twitter_obj.y_test, pol_map)
+
+
+    # Now use libdump to save the model and vectorizor persistantly
+    print("dumping")
+    dump(twitter_obj.vectorizer, vec_path, compress=9)
+
+    dump(trained_model, model_path, compress=9)
+    print("finished Dumping")
+
+
+
+
+class TrainedModel:
+    def __init__(self, classifier, test_tweets, X_test, y_test, tweet_to_polarity_map):
+        self.cfr = classifier
+
+        self.test_tweets = test_tweets
+        self.X_test = X_test
+        self.y_test = y_test
+        self.get_polarity = tweet_to_polarity_map
+
 
 '''
 The data is a CSV with emoticons removed. Data file format has 6 fields:
@@ -25,24 +58,32 @@ class TwitterDataSet:
     data_frame = None
 
     def __init__(self, TfIdfTransform_Bool=False, train_proportion=.90, clean_tweets_bool=False):
-        self.data_frame = build_full_data_set()
+
+        if clean_tweets_bool:
+            if path.exists('CleanedDataSet.csv'):
+                self.data_frame = build_cleaned_set()
+            else:
+                self.data_frame = build_full_data_set()
+                self.data_frame = clean_data_set(self.data_frame)
+        else:
+            self.data_frame = build_full_data_set()
         self.tweets = pd.Series(self.data_frame['tweet_text'])
         self.polarities = pd.Series(self.data_frame["polarity"])
-        if clean_tweets_bool:
-            df = clean_data_set(self.tweets)
-            self.data_frame = pd.DataFrame(df)
 
-        if TfIdfTransform_Bool:
+        if TfIdfTransform_Bool or not TfIdfTransform_Bool:
             self.vectorizer = TfidfVectorizer(analyzer='word',
-                                              lowercase=False)
-        else:
-            self.vectorizer = CountVectorizer(  # max_df=.9,
-                analyzer='word',
-                lowercase=False,
-            )
+                                              lowercase=False,
+                                              ngram_range=(1, 2))
+        #else:
+        #    self.vectorizer = CountVectorizer(  # max_df=.9,
+        #        analyzer='word',
+        #        lowercase=False,
+        #        ngram_range=(1, 2)
+        #    )
         self.tfidfTransformer = TfidfTransformer(use_idf=False)
-        self.train_tweets = []
-        self.test_tweets = []
+        self.train_tweets = None
+        self.test_tweets = None
+        self.get_test_tweet_polarity = None
         self.X_train, self.X_test, self.y_train, self.y_test = vectorize_words(dataSetObj=self,
                                                                                train_proportion=train_proportion)
 
@@ -58,7 +99,7 @@ class TwitterDataSet:
     def map_text_to_polarity(self):
         tweet_to_polarity_map = dict()
         df = self.data_frame
-        #for column_label, content in df.items():
+        # for column_label, content in df.items():
 
         for ind in df.index:
             tweet = df.at[ind, 'tweet_text']
@@ -66,6 +107,29 @@ class TwitterDataSet:
             value = df.at[ind, 'polarity']
             tweet_to_polarity_map[tweet] = value
         return tweet_to_polarity_map
+
+    def get_map_for_test_tweets_only(self):
+        if self.get_test_tweet_polarity:
+            return self.get_test_tweet_polarity
+        tweets = self.test_tweets.array
+        pol = self.y_test.array
+        get_pol = dict()
+        for i in range(0, len(tweets)):
+            get_pol[tweets[i]] = pol[i]
+
+        self.get_test_tweet_polarity = get_pol
+        return self.get_test_tweet_polarity
+
+    def save_pers_obj_parts(self): # dont use me
+        dump(self.vectorizer, 'persistent_vec.joblib', compress=9)
+        split_tuple = (self.X_train, self.X_test, self.y_train, self.y_test)
+        text_train_test_split = (self.train_tweets, self.test_tweets)
+        path_vec_split = 'vec_split_4_tuple.joblib'
+        path_text_2_tuple = 'text_split_2_tuple.joblib'
+        dump(split_tuple, path_vec_split, compress=9)
+        dump(text_train_test_split, path_text_2_tuple, compress=9)
+
+
 
 
 def vectorize_words(dataSetObj, train_proportion=.95):
@@ -84,23 +148,6 @@ def vectorize_words(dataSetObj, train_proportion=.95):
     # Vectorize the tweets
     X_train = vectorizer.fit_transform(dataSetObj.train_tweets)
     X_test = vectorizer.transform(dataSetObj.test_tweets)
-
-    # find term frequencies
-
-    '''
-    if tf_bool:
-        feature_tfidf = dataSetObj.tfidfTransformer.fit_transform(feature_matrix)
-        X_train, X_test, y_train, y_test = train_test_split(
-            feature_tfidf,
-            polarities,
-            train_size=train_proportion)
-    else:
-        # split data set for training and testing
-        X_train, X_test, y_train, y_test = train_test_split(
-            feature_matrix,
-            polarities,
-            train_size=train_proportion)
-    '''
 
     return X_train, X_test, y_train, y_test
 
@@ -131,27 +178,26 @@ def build_stanford_set():
     return df
 
 
+def build_cleaned_set():
+    columns = ["polarity", "unique_id", "date", "query", "user_handle", "tweet_text"]
+    filepath = 'CleanedDataSet.csv'
+    df = pd.read_csv(filepath, engine='python', names=columns)
+    return df
+
+
 tok = WordPunctTokenizer()
 pat1 = r'@[A-Za-z0-9]+'
 pat2 = r'https?://[A-Za-z0-9./]+'
 combined_pat = r'|'.join((pat1, pat2))
 
 
-def clean_data_set(tweets_series):
-    index = 0
-    for item in tweets_series.array:
-        if index < 10:
-            print(str(index) + " " + str(item))
-        clean_tweet = tweet_cleaner(item)
-        index += 1
+def clean_data_set(df):
+    for ind in df.index:
+        tweet = df.at[ind, 'tweet_text']
+        clean = tweet_cleaner(tweet)
+        df.at[ind, 'tweet_text'] = clean
 
-    index = 0
-    for index, item in tweets_series.items():
-        if index < 10:
-            print(str(index) + " " + str(item))
-        index += 1
-
-    return tweets_series
+    return df
 
 
 def tweet_cleaner(text):
@@ -162,16 +208,16 @@ def tweet_cleaner(text):
         clean = stripped.decode("utf-8-sig").replace(u"\ufffd", "?")
     except:
         clean = stripped
-    letters_only = re.sub("[^a-zA-Z]", " ", clean)
-    lower_case = letters_only.lower()
+    # letters_only = re.sub("[^a-zA-Z]", " ", clean)
+    # lower_case = letters_only.lower()
     # During the letters_only process two lines above, it has created unnecessay white spaces,
     # I will tokenize and join together to remove unneccessary white spaces
-    words = tok.tokenize(lower_case)
-    return (" ".join(words)).strip()
+    # words = tok.tokenize(lower_case)
+    # return (" ".join(words)).strip()
+    return clean
 
 
-
-
-
-
-
+if __name__ == '__main__':
+    data = TwitterDataSet()
+    new_data = clean_data_set(data.data_frame)
+    new_data.to_csv('CleanedDataSet.csv', index=False)
