@@ -9,6 +9,7 @@ LogRegression_persistent_model
 NB_persistent_model
 RandomForest_persistent_model
 SVM_SGD_persistent_model
+RandomGuess_persistent_model
 
 
 
