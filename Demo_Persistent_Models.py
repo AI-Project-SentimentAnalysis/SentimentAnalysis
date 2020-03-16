@@ -28,7 +28,10 @@ list_of_models = [
      'LinearSVC_persistent_model/model.joblib'),
     ('Random Forest Classifier',
      'RandomForest_persistent_model/vectorizer.joblib',
-     'RandomForest_persistent_model/model.joblib')
+     'RandomForest_persistent_model/model.joblib'),
+    ('Simple Neural Network',
+     'SNN_persistent_model/vectorizer.joblib',
+     'SNN_persistent_model/model.joblib')
 ]
 
 
