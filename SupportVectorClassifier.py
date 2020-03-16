@@ -1,10 +1,7 @@
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import pandas as pd
-from useful_components import TwitterDataSet, save_persistant_model
 from sklearn.svm import LinearSVC
-from sklearn import svm
+
+from useful_components import TwitterDataSet, save_persistant_model
 
 
 def support_vec_classifier():

@@ -9,6 +9,31 @@ from joblib import dump, load
 
 
 
+
+
+
+
+
+
+
+# which data should we save persistently?
+'''
+X_test              (vectorized version of tweets, ready to plugin to get accuracy score,
+test_tweets         (the test tweets themselves, to be used for demonstrating the classifier
+y_test              (the correct polarities for the training set, ready to be used for calculating accuracy)
+vectorizer          (this has the word-space-representation used for the model. Can be used to turn the demo 
+                     sample into the properly vectorized version expected by the classifier.
+classifier          (obvs)
+dict-tw-to-pol      (makes it easier to pull random sample of tweets and check their polarities)
+
+Good way to do this, that won't throw off the team: class to wrap this data up neatly. 
+
+HOWEVER the file size was too large with everything packaged together, so we will write out vectorizor 
+in one file, and the rest in another file
+'''
+
+
+# Now use libdump to save the model and vectorizor persistantly
 def save_persistant_model(vec_path, model_path, classifier, twitter_obj):
     print("building dict")
     pol_map = twitter_obj.get_map_for_test_tweets_only()
@@ -57,7 +82,7 @@ The format of each line in the csv files is as follows:
 class TwitterDataSet:
     data_frame = None
 
-    def __init__(self, TfIdfTransform_Bool=False, train_proportion=.90, clean_tweets_bool=False):
+    def __init__(self, TfIdfTransform_Bool=False, train_proportion=.95, clean_tweets_bool=False):
 
         if clean_tweets_bool:
             if path.exists('CleanedDataSet.csv'):
@@ -132,7 +157,7 @@ class TwitterDataSet:
 
 
 
-def vectorize_words(dataSetObj, train_proportion=.95):
+def vectorize_words(dataSetObj, train_proportion):
     data_frame = dataSetObj.data_frame
     tweets = dataSetObj.tweets
     polarities = dataSetObj.polarities
@@ -221,3 +246,8 @@ if __name__ == '__main__':
     data = TwitterDataSet()
     new_data = clean_data_set(data.data_frame)
     new_data.to_csv('CleanedDataSet.csv', index=False)
+
+
+
+
+

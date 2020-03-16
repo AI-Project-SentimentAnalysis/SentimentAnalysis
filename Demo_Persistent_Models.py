@@ -20,10 +20,10 @@ list_of_models = [
     ('Decision Tree Classifier',
      'DecisionTree_persistent_model/vectorizer.joblib',
      'DecisionTree_persistent_model/model.joblib'),
-    ('Support Vector Machine: Stochastic Gradient Descent Version',
+    ('Support Vector Machine - Stochastic Gradient Descent Version',
      'SVM_SGD_persistent_model/vectorizer.joblib',
      'SVM_SGD_persistent_model/model.joblib'),
-    ('Support Vector Machine: LinearSVC version',
+    ('Support Vector Machine - LinearSVC version',
      'LinearSVC_persistent_model/vectorizer.joblib',
      'LinearSVC_persistent_model/model.joblib'),
     ('Random Forest Classifier',
@@ -70,7 +70,7 @@ def run_pers_model(classifier_name, path_to_vec, path_to_model_obj):
     print("Saving a sample set, with the model predictions and actual polarity")
     #get a random sample of tweets FROM THE TEST SET, do NOT use the training set
     #If you choose not to use the given methods and objects
-    tweets_to_test = test_tweets.sample(20).array
+    tweets_to_test = test_tweets.sample(10).array
 
     #Turn sample into a labeled Series, prepped for csv file
     tweets_series = pd.Series(tweets_to_test, name="Tweet Text")

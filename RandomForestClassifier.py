@@ -13,7 +13,7 @@ def random_forest_classifier():
     n_features = data_set.get_num_features()
 
     max_feat = int(sqrt(n_features))
-    classifier = RandomForestClassifier(max_depth=1000, random_state=0, n_estimators=100)
+    classifier = RandomForestClassifier(max_depth=1002, random_state=0, n_estimators=100)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
 
